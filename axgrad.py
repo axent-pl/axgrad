@@ -59,8 +59,8 @@ class PowOperation(Operation):
 
 class Value:
 
-    def __init__(self, value: float, label: str = None, func: Operation = None):
-        self.value: float = value
+    def __init__(self, value: Union[float,int], label: str = None, func: Operation = None):
+        self.value: float = float(value)
         self.label: str = label
         self.func = func
         self.grad: float = 0.0
@@ -155,6 +155,19 @@ class TestValue(unittest.TestCase):
 
             self.assertAlmostEqual(x.grad, dydx)
 
+    def test_poly2(self):
+        # y = x**3 + 2*x**2 + x - 7
+        for i in range(1, 10):
+            # calculate derivative with backward pass
+            x = Value(float(i), label='x')
+            y = x**3 + 2*x**2 + x - 7
+            y.backward(0.00001)
+
+            # analytical derivative for comparison
+            xx = x.value
+            dydx = 3.0*xx**2 + 4*xx + 1
+
+            self.assertAlmostEqual(x.grad, dydx)
 
 if __name__ == '__main__':
     unittest.main()
